@@ -1,13 +1,9 @@
 module Main where
 bigNum = 600851475143
 
-isPrime :: (Integral a) => a -> [a] -> Bool
-isPrime x xs = (length [n | n <- xs, mod x n == 0]) == 0
+primeFactors x d list
+  | mod x d == 0 = primeFactors (div x d) d (d:list)
+  | x < 2 = head list
+  | otherwise = primeFactors x (succ d) list
 
--- primeMe :: (Integral a) => a -> [a] -> [a]
-primeMe x list
- | x > bigNum = list
- | isPrime x list && mod bigNum x == 0 = primeMe x (x:list)
- | otherwise = primeMe (succ x) list
-
-main = print (primeMe 2 [2])
+main = print (primeFactors bigNum 2 [])
