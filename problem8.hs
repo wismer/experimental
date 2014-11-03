@@ -21,10 +21,9 @@ massive = "73167176531330624919225119674426574742355349194934\
             \05886116467109405077541002256983155200055935729725\
             \71636269561882670428252483600823257530420752963450"
 
-parseMass :: (Num a) => [Char] -> Int -> [Int]
+parseMass :: (Num a) => [Char] -> Int -> Int
 
-parseMass [] n = [n]
-parseMass [x] n = [n]
+parseMass [] n = n
 parseMass xs n
   | a > n = parseMass (tail xs) a
   | otherwise = parseMass (tail xs) n
