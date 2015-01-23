@@ -23,19 +23,22 @@ class TypeSet
   end
 end
 
-class Poop < TypeSet
-
+class SomeClass < TypeSet
   def test_method(arg1:, arg2:)
     (arg1 * arg2).split("")
   end
   typesafe(self, :test_method, arg1: String, arg2: Fixnum)
+
+  def capitalize(names:)
+    names.map { |name| name.capitalize }
+  end
+  typesafe(self, :capitalize, names: Array)
 end
 
-a = Poop.new
-# result = a.test_method(arg1: "hihi", arg2: 3)
-meth = a.method(:test_method).to_proc
-binding.pry
-
+a = SomeClass.new
+result = a.test_method(arg1: "hihi", arg2: 3)
+another = a.capitalize(names: ["tywin", "maimonides", "philly phanatic"])
+fail_another = a.capitalize(names: "joe")
 # 1. Method gets called from the outside normally.
 # 2. goes to module, dumps the arguments.
 # 3. define_method ?
