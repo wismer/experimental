@@ -9,25 +9,24 @@ class TypeSet
   def self.typesafe(klass, meth, args={})
     original_method = klass.instance_method(meth).bind(klass.new)
     klass.send(:define_method, meth, ->(**passed_args) {
-      begin
-        if args.all? { |k,v| passed_args[k].class == v }
-          original_method.call(passed_args)
-        else
-          exceptions = args.map do |k,v|
-            passed_args[k].class != v ? "Expected #{v}, got #{passed_args[k].class}. " : ""
-          end.join(" ")
-          raise TypeError, exceptions
-        end
+      if args.all? { |k,v| passed_args[k].class == v }
+        output = original_method.call(passed_args)
+      else
+        exceptions = args.map do |k,v|
+          passed_args[k].class != v ? "Expected #{v}, got #{passed_args[k].class}. " : ""
+        end.join(" ")
+        raise TypeError, exceptions
       end
     })
   end
 end
 
 class SomeClass < TypeSet
-  def test_method(arg1:, arg2:)
-    (arg1 * arg2).split("")
+  def create_array_of_letters(arg1:, arg2:)
+    (arg1 * (arg2 + @val)).split("")
   end
-  typesafe(self, :test_method, arg1: String, arg2: Fixnum)
+  typesafe(self, :create_array_of_letters, arg1: String, arg2: Fixnum)
+
 
   def capitalize(names:)
     names.map { |name| name.capitalize }
@@ -35,10 +34,10 @@ class SomeClass < TypeSet
   typesafe(self, :capitalize, names: Array)
 end
 
-a = SomeClass.new
-result = a.test_method(arg1: "hihi", arg2: 3)
-another = a.capitalize(names: ["tywin", "maimonides", "philly phanatic"])
-fail_another = a.capitalize(names: "joe")
-# 1. Method gets called from the outside normally.
-# 2. goes to module, dumps the arguments.
-# 3. define_method ?
+some_class = SomeClass.new
+convert_word_into_letters = some_class.create_array_of_letters(arg1: "hihi", arg2: 3)
+# passes
+array_of_names = some_class.capitalize(names: ["tywin", "maimonides", "philly phanatic"])
+# passes
+capitalize = some_class.capitalize(names: "joe, samantha, rick")
+# raises a type error
